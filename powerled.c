@@ -15,6 +15,7 @@
 #define CMD62 0x62
 #define ADR   0xF8
 #define CMD81 0x81
+#define CMD80 0x80
 
 //-------------------n100 start-------------------
 
@@ -56,6 +57,7 @@ void exit_conf_mode() {
 void cmd_on() {
     enter_conf_mode();
     select_ldn(GPIOLDN);
+    write_reg(ADR, 0x1F);
     write_reg(CMDF9, 0x01);
     exit_conf_mode();
 }
@@ -63,9 +65,7 @@ void cmd_on() {
 void cmd_off() {
     enter_conf_mode();
     select_ldn(GPIOLDN);
-    write_reg(0xC3, 0x08);
-    write_reg(0xCB, 0x08);
-    write_reg(0xB3, 0x08);
+    write_reg(ADR, 0x1E);
     exit_conf_mode();
 }
 
@@ -84,14 +84,15 @@ void cmd_blink(char* interval) {
 
     enter_conf_mode();
     select_ldn(GPIOLDN);
-    write_reg(0xF9, val);
+    write_reg(ADR, 0x1F);
+    write_reg(CMDF9, val);
     exit_conf_mode();
 }
 
 void cmd_status() {
     enter_conf_mode();
     select_ldn(GPIOLDN);
-    unsigned char val = read_reg(0xF9);
+    unsigned char val = read_reg(CMDF9);
     exit_conf_mode();
 
     if (val == 0x01) {
@@ -117,7 +118,7 @@ void OemEcIbFree()
     unsigned char Status;
     do {
         Status = inb(CMD66);
-        outb(0x80, 0xEB);
+        outb(CMD80, 0xEB);
     } while (Status & 2);
 }
 
@@ -126,7 +127,7 @@ void OemEcObFull()
     unsigned char Status;
     do {
         Status = inb(CMD66);
-        outb(0x80, 0xEC);
+        outb(CMD80, 0xEC);
     } while (!(Status & 1));
 }
 
@@ -139,7 +140,7 @@ void uexit_conf_mode() {
 
 unsigned char uread_reg(unsigned char reg) {
     OemEcIbFree();
-    outb(0x80, CMD66);
+    outb(CMD80, CMD66);
     OemEcIbFree();
     outb(ADR, CMD62);
     OemEcObFull();
