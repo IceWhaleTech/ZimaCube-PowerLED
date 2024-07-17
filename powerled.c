@@ -113,13 +113,13 @@ void cmd_status()
     select_ldn(GPIOLDN);
     unsigned char val = read_reg(CMDF9);
     exit_conf_mode();
-    value = read_req(CMDF8) & bit0;
+    unsigned char value = read_reg(CMDF8) & 0x01;
     printf("value: %x\n", value);
-    if (value == bit0)
+    if (value == 0x01)
     {
         printf("Power LED is on\n");
     }
-    else if (value == 0)
+    else if (value == 0x00)
     {
         printf("Power LED is off\n");
     }
